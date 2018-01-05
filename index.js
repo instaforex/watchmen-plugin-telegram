@@ -85,9 +85,7 @@ function _telegramSend(chatIds, msg) {
 
     chatIds.forEach(function(chatId){
         chatId = chatId.trim();
-        if(chatId.indexOf('@') === 0) {
-            bot.sendMessage(chatId, msg);
-        }
+        bot.sendMessage(chatId, msg);
     });
 }
 

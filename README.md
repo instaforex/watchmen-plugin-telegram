@@ -11,7 +11,7 @@ Edit file `webserver/views/service-edit.html` and append after line 99 the follo
     <label for="service-alertToTelegram" class="col-sm-2 control-label">Alert to telegram</label>
     <div class="col-sm-6">
         <input type="text" ng-model="service.alertToTelegram" type="checkbox" class="form-control" id="service-alertToTelegram"
-            placeholder="@aaaaa,@bbbbb">
+            placeholder="111111,222222">
     </div>
     <div class="descr col-sm-4">List of telegram accounts to alert to</div>
 </div>
