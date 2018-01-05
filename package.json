@@ -18,6 +18,6 @@
   "homepage": "https://github.com/vlaad360/watchman-plugin-telegram#readme",
   "dependencies": {
     "moment": "^2.18.1",
-    "tgfancy": "^0.10.0"
+    "tgfancy": "^0.13.0"
   }
 }

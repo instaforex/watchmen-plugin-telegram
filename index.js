@@ -1,15 +1,19 @@
 /**
  * Created by vlad on 01.06.17.
  */
-var moment = require('moment');
-var TgFancy = require('tgfancy');
+const moment = require('moment');
+const TgFancy = require('tgfancy');
 
-var TELEGRAM_TOKEN = process.env.WATCHMEN_TELEGRAM_TOKEN || null;
-var CHAT_ID = process.env.WATCHMEN_CHAT_ID || null;
-var ENABLE_LATENCY_WARNING = process.env.WATCHMEN_TELEGRAM_LATENCY_WARNING || true;
+const TELEGRAM_TOKEN = process.env.WATCHMEN_TELEGRAM_TOKEN || null;
+const ENABLE_LATENCY_WARNING = process.env.WATCHMEN_TELEGRAM_LATENCY_WARNING || true;
 
 const bot = new TgFancy(TELEGRAM_TOKEN);
-var eventHandlers = {
+
+const getChatIds = function(service) {
+    return (service.alertToTelegram || "").split(',');
+}
+
+const eventHandlers = {
     /**
      * On a new outage
      * @param {Object} service
@@ -19,7 +23,7 @@ var eventHandlers = {
      */
     onNewOutage: function (service, outage) {
         var errorMsg = service.name + ' down!. Error: ' + JSON.stringify(outage.error);
-        _telegramSend(errorMsg);
+        _telegramSend(getChatIds(service), errorMsg);
     },
 
     /**
@@ -31,7 +35,7 @@ var eventHandlers = {
      */
     onCurrentOutage: function (service, outage) {
         var errorMsg = service.name + ' is still down!. Error: ' + JSON.stringify(outage.error);
-        _telegramSend(errorMsg);
+        _telegramSend(getChatIds(service), errorMsg);
     },
 
     /**
@@ -43,7 +47,7 @@ var eventHandlers = {
      */
     onFailedCheck: function (service, data) {
         var errorMsg = service.name + ' check failed!. Error: ' + JSON.stringify(data.error);
-        _telegramSend(errorMsg);
+        _telegramSend(getChatIds(service), errorMsg);
     },
 
     /**
@@ -54,7 +58,7 @@ var eventHandlers = {
      */
     onLatencyWarning: function (service, data) {
         var msg = service.name + ' latency warning. Took: ' + (data.elapsedTime + ' ms.');
-        _telegramSend(msg);
+        _telegramSend(getChatIds(service), msg);
     },
 
     /**
@@ -67,18 +71,24 @@ var eventHandlers = {
     onServiceBack: function (service, lastOutage) {
         var duration = moment.duration(moment().unix() - lastOutage.timestamp, 'seconds');
         var msg = service.name + ' is back. Down for ' + duration.humanize();
-        _telegramSend(msg);
+        _telegramSend(getChatIds(service), msg);
     }
 };
 /**
  * Send message using Telegram
+ * @param {array} chartIds
  * @param {string} msg Message to send
  * @private
  */
-function _telegramSend(msg) {
+function _telegramSend(chatIds, msg) {
     if (!TELEGRAM_TOKEN) return console.log("Please set the environment variable WATCHMEN_TELEGRAM_TOKEN");
-    if (!CHAT_ID) return console.log("Please set the environment variable WATCHMEN_CHAT_ID");
-    bot.sendMessage(CHAT_ID, msg);
+
+    chatIds.forEach(function(chatId){
+        chatId = chatId.trim();
+        if(chatId.indexOf('@') === 0) {
+            bot.sendMessage(chatId, msg);
+        }
+    });
 }
 
 function TelegramPlugin(watchmen) {
