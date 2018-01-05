@@ -69,7 +69,7 @@ const eventHandlers = {
      * @param {number} lastOutage.timestamp (ms)
      */
     onServiceBack: function (service, lastOutage) {
-        var duration = moment.duration(moment().unix() - lastOutage.timestamp, 'seconds');
+        var duration = moment.duration(+moment().format('x') - lastOutage.timestamp);
         var msg = service.name + ' is back. Down for ' + duration.humanize();
         _telegramSend(getChatIds(service), msg);
     }
